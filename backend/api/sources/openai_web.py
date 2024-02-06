@@ -128,7 +128,6 @@ def _check_fields(data: dict) -> bool:
         return False
     return True
 
-
 async def _check_response(response: httpx.Response) -> None:
     # 改成自带的错误处理
     try:
@@ -427,7 +426,22 @@ class OpenaiWebChatManager(metaclass=SingletonMeta):
             async for line in response.aiter_lines():
                 if not line or line is None:
                     continue
-
+                # old way
+                if "data: " in line:
+                    line = line[6:]
+                if "[DONE]" in line:
+                    break
+                try:
+                    lineDict = json.loads(line)
+                except json.decoder.JSONDecodeError:
+                    pass
+                # print(type(line))
+                if not _check_fields(lineDict):
+                    if "error" in line:
+                        raise OpenaiWebException(lineDict["error"])
+                    else:
+                        logger.warning(f"Field missing. Details: {str(lineDict)}")
+                        continue
                 # wss
                 try:
                     line = json.loads(line)
@@ -438,22 +452,11 @@ class OpenaiWebChatManager(metaclass=SingletonMeta):
                         async for l in _receive_from_websocket2(wss_url, Config().openai_web.common_timeout,Config().openai_web.wss_proxy):
                             yield l
                         break
+                    else:
+                        yield line
+                        break
                 except json.decoder.JSONDecodeError:
                     pass
-
-                # old way
-                if "data: " in line:
-                    line = line[6:]
-                if "[DONE]" in line:
-                    break
-                if not _check_fields(line):
-                    if "error" in line:
-                        raise OpenaiWebException(line["error"])
-                    else:
-                        logger.warning(f"Field missing. Details: {str(line)}")
-                        continue
-                yield line
-
     async def delete_conversation(self, conversation_id: str, source_id: str = None):
         # await self.chatbot.delete_conversation(conversation_id)
         url = f"{config.openai_web.chatgpt_base_url}conversation/{conversation_id}"
