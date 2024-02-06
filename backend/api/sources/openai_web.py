@@ -432,19 +432,19 @@ class OpenaiWebChatManager(metaclass=SingletonMeta):
                 if "[DONE]" in line:
                     break
                 try:
-                    lineDict = json.loads(line)
+                    line = json.loads(line)
                 except json.decoder.JSONDecodeError:
                     pass
                 # print(type(line))
-                if not _check_fields(lineDict):
+                if not _check_fields(line):
                     if "error" in line:
-                        raise OpenaiWebException(lineDict["error"])
+                        raise OpenaiWebException(line["error"])
                     else:
-                        logger.warning(f"Field missing. Details: {str(lineDict)}")
+                        logger.warning(f"Field missing. Details: {str(line)}")
                         continue
                 # wss
                 try:
-                    line = json.loads(line)
+                    # line = json.loads(line)
                     # TODO: define model
                     wss_url = line.get("wss_url")
                     # connect to wss_url and receive messages
@@ -454,7 +454,7 @@ class OpenaiWebChatManager(metaclass=SingletonMeta):
                         break
                     else:
                         yield line
-                        break
+                        # break
                 except json.decoder.JSONDecodeError:
                     pass
     async def delete_conversation(self, conversation_id: str, source_id: str = None):
