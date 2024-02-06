@@ -2,7 +2,7 @@ name: Build and publish Docker image
 
 on:
   push:
-    tags: ["v*"]
+    tags: ["docker-build-test*"]
   workflow_dispatch:
     inputs:
       version:
