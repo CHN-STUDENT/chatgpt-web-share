@@ -3,7 +3,7 @@ import axios from 'axios';
 import ApiUrl from './url';
 
 export function getArkoseInfo() {
-  return axios.get<{ enabled: boolean, url: string }>(ApiUrl.ArkoseInfo);
+  return axios.get<{ enabled: boolean, url: string, data: string, object: string }>(ApiUrl.ArkoseInfo);
 }
 export function getCurrentUrlWithApiPath(): string {
   // 获取当前URL的组成部分

@@ -359,11 +359,20 @@ const sendMsg = async () => {
 
   // 判断是否满足特定条件, TODO: 3.5 API 模型 418 错误需要尝试带 arkose token
   if (currentConversation.value!.source! === 'openai_web' && currentConversation.value!.current_model! === 'gpt_4') {
-    const { data: arkoseInfo } = await getArkoseInfo(); // 异步获取arkoseInfo
-    if (arkoseInfo && arkoseInfo.enabled) {
-      const url = baseUrl + arkoseInfo.url;
+    const response = await getArkoseInfo();
+    const { enabled, url, data, object } = response.data; // 异步获取arkoseInfo
+    if (response.data && enabled) {
+      if (url===''|| data==='') {
+        Dialog.error({
+          title: t('errors.arkoseError'),
+          content: t('Get Arkose info error: empty arkose url or user data!'),
+        });
+        return;
+      }
+      const arkose_endpoint_url = url;
+      // const arkoseUrl = baseUrl + url;
       try {
-        arkoseToken = await getArkoseToken(url);
+        arkoseToken = await getArkoseToken(arkose_endpoint_url,data);
         console.log('Get arkose token', arkoseToken);
         // 使用arkoseToken进行接下来的操作...
       } catch (err: any) {

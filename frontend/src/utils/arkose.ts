@@ -18,7 +18,7 @@ export type ArkoseResponse = {
 };
 
 export type ArkoseEnforcementConfig = {
-  // publicKey: string;
+  data?: object;
   mode?: string;
   selector?: string;
   nonce?: string;
@@ -65,6 +65,7 @@ export function setupEnforcement(
     window.arkoseEnforcement.setConfig({
       selector: config.selector,
       mode: config.mode,
+      data: config.data, // 直接传递 data 对象
       onReady: config.onReady,
       onShown: config.onShown,
       onShow: config.onShow,
@@ -105,9 +106,12 @@ export function runEnforcement() {
   }
 }
 
-export function getArkoseToken(arkoseUrl: string): Promise<string | null> {
+export function getArkoseToken(arkoseUrl: string, blob: string): Promise<string | null> {
   return new Promise((resolve, reject) => {
     const config = {
+      data: {
+        blob,
+      },
       onReady() {
         console.log('Arkose is ready');
         runEnforcement();

@@ -42,6 +42,7 @@
                 v-show="tab.name === 'config'"
                 type="success"
                 class="mb-2"
+                id="myarkose"
                 :loading="testArkoseLoading"
                 @click="testArkose()"
               >
@@ -284,8 +285,8 @@ const checkChatgptAccount = () => {
 };
 
 const testArkose = async () => {
-  const { data } = await getArkoseInfo();
-  const { enabled, url } = data;
+  const response = await getArkoseInfo();
+  const { enabled, url, data, object } = response.data;
   const baseUrl = getCurrentUrlWithApiPath();
 
   if (!enabled) {
@@ -293,11 +294,17 @@ const testArkose = async () => {
     return;
   }
 
+  if (url===''||data==='') {
+    Message.error('Get Arkose info error: empty arkose url or user data!');
+    return;
+  }
+
   testArkoseLoading.value = true;
 
   try {
-    const arkose_endpoint_url = baseUrl + url;
-    const arkoseToken = await getArkoseToken(arkose_endpoint_url);
+    const arkose_endpoint_url = url;
+    // const arkose_endpoint_url = baseUrl + url;
+    const arkoseToken = await getArkoseToken(arkose_endpoint_url,data);
     Message.success(t('tips.success') + ': ' + arkoseToken);
     console.log('Get arkose token', arkoseToken);
   } catch (err: any) {

@@ -411,7 +411,7 @@
       "file_upload_strategy": "配置使用 code interpreter 模型时文件如何上传，详见文档",
       "max_completion_concurrency": "决定同时能有多少用户进行对话。如果设置为一个很大的值，相当于禁用排队对话功能。",
       "enable_arkose_endpoint": "实验性功能，启用前请仔细阅读文档说明。启用后务必填写下方的 arkose_endpoint_base。如果启用，将会在前端取得 Arkose token，用户可能需要进行手动验证。",
-      "arkose_endpoint_base": "Arkose 代理的地址前缀，必须以 / 结尾，如：http://ninja/"
+      "arkose_endpoint_base": "Arkose 代理的地址(公网)，必须以 / 结尾，如：http://ninja/"
     }
   },
   "dialog": {
