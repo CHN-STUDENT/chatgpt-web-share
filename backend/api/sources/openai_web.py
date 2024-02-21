@@ -10,6 +10,7 @@ import aiofiles
 import httpx
 from fastapi.encoders import jsonable_encoder
 import aiohttp
+from aiohttp_socks import ProxyConnector, ProxyType
 from httpx import AsyncClient
 from pydantic import ValidationError
 
@@ -194,8 +195,16 @@ async def _receive_from_websocket(wss_url):
     recv_msg_count = 0
     timeout_settings = aiohttp.ClientTimeout(total=None, connect=timeout, sock_read=timeout)
 
-    async with aiohttp.ClientSession(timeout=timeout_settings) as session:
-        async with session.ws_connect(wss_url, protocols=["json.reliable.webpubsub.azure.v1"], proxy=wss_proxy) as ws:
+    # 根据 wss_proxy 是否为空使用不同的 Connector
+    if wss_proxy:
+        # 使用 ProxyConnector 支持 socks5 代理
+        connector = ProxyConnector.from_url(wss_proxy)
+    else:
+        # 不使用代理
+        connector = aiohttp.TCPConnector()
+
+    async with aiohttp.ClientSession(connector=connector, timeout=timeout_settings) as session:
+        async with session.ws_connect(wss_url, protocols=["json.reliable.webpubsub.azure.v1"]) as ws:
             logger.debug(f"Connected to Websocket {wss_url[:65]}...{wss_url[-10:]}")
             async for msg in ws:
                 if msg.type == aiohttp.WSMsgType.TEXT:

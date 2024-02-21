@@ -174,7 +174,8 @@ async def get_arkose_info(request: Request, _user: User = Depends(current_active
     headers = {k: v for k, v in headers.items() if v is not None}
 
     async with httpx.AsyncClient() as client:
-        response = await client.post(f"{config.openai_web.arkose_endpoint_base}backend-api/sentinel/arkose/dx", headers=headers)
+        {config.openai_web.chatgpt_base_url}
+        response = await client.post(f"{config.openai_web.chatgpt_base_url}sentinel/arkose/dx", headers=headers)
     # print(response.json())
     # 检查请求是否成功
     if response.status_code == 200:
